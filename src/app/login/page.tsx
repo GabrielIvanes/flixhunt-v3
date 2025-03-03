@@ -4,6 +4,7 @@ function page() {
   return (
     <div>
       <SignIn provider="google" />
+      <SignIn provider="github" />
     </div>
   );
 }

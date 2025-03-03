@@ -1,4 +1,5 @@
 import { auth } from '@/auth';
+import SignOut from '@/components/sign-out';
 import { redirect } from 'next/navigation';
 
 export default async function Home() {
@@ -6,5 +7,10 @@ export default async function Home() {
 
   if (!session) return redirect('/login');
 
-  return <div>Home page</div>;
+  return (
+    <div>
+      <p>Home page</p>
+      <SignOut />
+    </div>
+  );
 }
