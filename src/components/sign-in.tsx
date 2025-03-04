@@ -1,15 +1,10 @@
-import { auth, signIn } from '@/auth';
-import { redirect } from 'next/navigation';
+import { signIn } from '@/auth';
 
 interface Props {
   provider: string;
 }
 
 export default async function SignIn({ provider }: Props) {
-  const session = await auth();
-
-  if (session) return redirect('/');
-
   return (
     <form
       action={async () => {
