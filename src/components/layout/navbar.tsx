@@ -28,7 +28,7 @@ export default function Navbar({ user }: Props) {
       : '??';
 
   return (
-    <header className="bg-muted mx-5 mt-3 rounded-lg px-5 py-3 flex justify-between items-center">
+    <div className="bg-muted mx-5 rounded-lg px-5 py-3 flex justify-between items-center sticky top-5 h-16 z-10">
       <Navigation />
       <div className="flex justify-center items-center gap-2">
         <ModeToggle />
@@ -48,6 +48,6 @@ export default function Navbar({ user }: Props) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </header>
+    </div>
   );
 }

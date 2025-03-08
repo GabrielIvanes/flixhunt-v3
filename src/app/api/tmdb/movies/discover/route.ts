@@ -1,0 +1,54 @@
+import { NextRequest } from 'next/server';
+
+export const GET = async (request: NextRequest) => {
+  try {
+    let url = `${process.env.TMDB_URL}/discover/movie?include_adult=false`;
+    const searchParams = request.nextUrl.searchParams;
+
+    const language = searchParams.get('language');
+
+    if (language) url += `&language=${language}`;
+
+    if (!language)
+      return Response.json(
+        {
+          success: false,
+          message: 'The request is missing a language query param.',
+        },
+        { status: 400, statusText: 'Bad request' }
+      );
+
+    const genres = searchParams.get('with-genres');
+
+    if (genres) url += `&with_genres=${genres}`;
+
+    const cast = searchParams.get('with-cast');
+
+    if (cast) url += `&with_cast=${cast}`;
+
+    const crew = searchParams.get('with-crew');
+
+    if (crew) url += `&with_crew=${crew}`;
+
+    const sortBy = searchParams.get('sort-by');
+
+    if (sortBy) url += `&sort_by=${sortBy}`;
+    else url += '&sort_by=popularity.desc';
+
+    const data = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${process.env.TMDB_TOKEN}`,
+      },
+    });
+    const movies = await data.json();
+    return Response.json(
+      { success: true, response: movies },
+      { status: 200, statusText: 'OK' }
+    );
+  } catch (err) {
+    return Response.json(
+      { success: false, message: err },
+      { status: 500, statusText: 'Internal Server Error' }
+    );
+  }
+};

@@ -5,6 +5,8 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import { Lexend, Montserrat, Rubik } from 'next/font/google';
+import { getTmdbConfiguration } from '@/lib/tmdb-config-functions';
+import { TmdbProvider } from '@/context/tmdb-context';
 
 export const metadata: Metadata = {
   title: 'Flixhunt',
@@ -30,8 +32,11 @@ export default async function RootLayout({
 
   const user = session?.user;
 
+  const configuration = await getTmdbConfiguration();
+
   return (
-    user && (
+    user &&
+    configuration && (
       <html lang="en" suppressHydrationWarning>
         <body
           className={`text-foreground bg-background ${lexend.className} ${rubik.className} ${montserrat.className}`}
@@ -42,8 +47,14 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <Navbar user={user} />
-            {children}
+            <TmdbProvider value={configuration}>
+              <header className="backdrop-blur-lg sticky top-0 pt-5 z-10">
+                <Navbar user={user} />
+              </header>
+              <main className="flex min-h-[calc(100vh-4rem-1.25rem)] mt-5 max-w-full flex-col items-center justify-center">
+                {children}
+              </main>
+            </TmdbProvider>
           </ThemeProvider>
         </body>
       </html>
