@@ -1,6 +1,6 @@
 import { ApiError } from 'next/dist/server/api-utils';
 import { fetchData } from '../lib/global-functions';
-import { MovieSummary } from '../utils/movie-interfaces';
+import { MovieDetails, MovieSummary } from '../utils/movie-interfaces';
 import { Genre } from '@/utils/global-interfaces';
 
 export async function getTheatreMovies() {
@@ -61,6 +61,25 @@ export async function getMoviesByGenre(genre: Genre) {
     const movies: MovieSummary[] = (await fetchData(url, globalError, option))
       .results;
     return movies;
+  } catch (err) {
+    console.log(err);
+    if (err instanceof ApiError) throw err;
+    throw new Error(globalError);
+  }
+}
+
+export async function getMovie(movie: string) {
+  const globalError = 'Failed to fetch movie details.';
+
+  try {
+    const url = `${process.env.BASE_URL}/api/tmdb/movies/${movie}?language=en-US`;
+    const option = { next: { revalidate: 3600 } };
+    const movieDetails: MovieDetails = await fetchData(
+      url,
+      globalError,
+      option
+    );
+    return movieDetails;
   } catch (err) {
     console.log(err);
     if (err instanceof ApiError) throw err;

@@ -14,13 +14,22 @@ export const metadata: Metadata = {
 };
 
 const montserrat = Montserrat({
+  variable: '--font-montserrat',
   weight: 'variable',
   subsets: ['latin'],
 });
 
-const rubik = Rubik({ weight: 'variable', subsets: ['latin'] });
+const rubik = Rubik({
+  variable: '--font-rubik',
+  weight: 'variable',
+  subsets: ['latin'],
+});
 
-const lexend = Lexend({ weight: 'variable', subsets: ['latin'] });
+const lexend = Lexend({
+  variable: '--font-lexend',
+  weight: 'variable',
+  subsets: ['latin'],
+});
 
 export default async function RootLayout({
   children,
@@ -48,10 +57,10 @@ export default async function RootLayout({
             disableTransitionOnChange
           >
             <TmdbProvider value={configuration}>
-              <header className="backdrop-blur-lg sticky top-0 pt-5 z-10">
+              <header className="backdrop-blur-lg sticky top-0 pt-5 z-20">
                 <Navbar user={user} />
               </header>
-              <main className="flex min-h-[calc(100vh-4rem-1.25rem)] mt-5 max-w-full flex-col items-center justify-center">
+              <main className="flex min-h-[calc(100vh-4rem-1.25rem)] max-w-full flex-col items-center justify-center">
                 {children}
               </main>
             </TmdbProvider>

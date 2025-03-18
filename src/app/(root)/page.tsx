@@ -20,14 +20,23 @@ export default async function Home() {
   }
 
   return (
-    <div className="flex gap-10 max-w-full mt-5 flex-col items-center justify-between overflow-hidden">
-      <CarouselList listName="Theater movies" elements={theatersMovies} />
-      <CarouselList listName="Popular movies" elements={popularMovies} />
+    <div className="flex flex-col gap-10 max-w-full mt-10 items-center justify-between">
+      <CarouselList
+        listName="Theater movies"
+        elements={theatersMovies}
+        type="movies"
+      />
+      <CarouselList
+        listName="Popular movies"
+        elements={popularMovies}
+        type="movies"
+      />
       {moviesByGenres.map((moviesByGenre) => (
         <CarouselList
           key={moviesByGenre.genre.id}
           listName={moviesByGenre.genre.name}
           elements={moviesByGenre.movies}
+          type="movies"
         />
       ))}
     </div>

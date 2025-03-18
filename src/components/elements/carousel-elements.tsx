@@ -6,16 +6,34 @@ import {
   CarouselPrevious,
 } from '../ui/carousel';
 import Element from '@/components/elements/element';
-import { Element as ElementInterface } from '@/utils/global-interfaces';
+import {
+  Element as ElementInterface,
+  Media,
+  Person,
+} from '@/utils/global-interfaces';
+import { Cast, Crew } from '@/utils/person-interfaces';
 
 interface Props {
   elements: ElementInterface[];
+  type: 'movies' | 'tv-shows' | 'cast' | 'crew';
+  additionalInformation?: boolean;
+  writeTitle?: boolean;
+  loop?: boolean;
 }
 
-export default async function CarouselElements({ elements }: Props) {
+export default function CarouselElements({
+  elements,
+  type,
+  additionalInformation,
+  writeTitle,
+  loop = true,
+}: Props) {
   return (
-    <Carousel opts={{ loop: true }} className="max-w-full">
-      <CarouselContent className="">
+    <Carousel
+      {...(loop ? { opts: { loop: true } } : {})}
+      className="max-w-full"
+    >
+      <CarouselContent className={loop ? 'pl-0' : 'pl-3'}>
         {elements.map((element) => (
           <CarouselItem
             key={element.id}
@@ -23,9 +41,28 @@ export default async function CarouselElements({ elements }: Props) {
           >
             <Element
               id={element.id}
-              image={element.poster_path}
-              title={element.title}
+              image={
+                type === 'movies' || type === 'tv-shows'
+                  ? (element as Media).poster_path
+                  : (element as Person).profile_path
+              }
+              title={
+                type === 'movies'
+                  ? (element as Media).title
+                  : (element as Person).name
+              }
               width={175}
+              type={type}
+              additionalInformation={
+                additionalInformation
+                  ? type === 'movies' || type === 'tv-shows'
+                    ? (element as Media).title
+                    : type === 'cast'
+                    ? (element as Cast).character
+                    : (element as Crew).job
+                  : undefined
+              }
+              writeTitle={writeTitle}
             />
           </CarouselItem>
         ))}

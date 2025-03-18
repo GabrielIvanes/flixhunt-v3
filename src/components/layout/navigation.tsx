@@ -12,6 +12,9 @@ import { usePathname } from 'next/navigation';
 
 export default function Navigation() {
   const pathname = usePathname();
+  console.log(pathname);
+  console.log(pathname.includes('/movies'));
+
   const links = [
     {
       name: 'Movies',
@@ -40,9 +43,9 @@ export default function Navigation() {
         <Link
           className={`${
             pathname == '/'
-              ? 'text-foreground'
-              : 'text-muted-foreground group-hover:text-foreground'
-          } text-2xl transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=open]:text-accent-foreground data-[state=open]:bg-accent/50 data-[state=open]:hover:bg-accent data-[state=open]:focus:bg-accent`}
+              ? 'text-accent-foreground'
+              : 'text-muted-foreground hover:text-accent-foreground'
+          } text-2xl transition-colors`}
           href="/"
         >
           Flixhunt
@@ -56,8 +59,12 @@ export default function Navigation() {
                 <Link href={link.path} legacyBehavior passHref>
                   <NavigationMenuLink
                     className={`${navigationMenuTriggerStyle({
-                      active: pathname === link.path,
-                    })} text-muted-foreground hover:text-foreground bg-muted hover:bg-background`}
+                      active: pathname.includes(link.path),
+                    })} ${
+                      pathname.includes(link.path)
+                        ? 'text-accent-foreground'
+                        : 'text-muted-foreground hover:text-accent-foreground'
+                    }`}
                   >
                     {link.name}
                   </NavigationMenuLink>

@@ -9,6 +9,7 @@ import {
 } from '../ui/dropdown-menu';
 import SignOut from '../auth/sign-out';
 import Navigation from './navigation';
+import { PiSignOut } from 'react-icons/pi';
 
 interface Props {
   user: User;
@@ -28,7 +29,7 @@ export default function Navbar({ user }: Props) {
       : '??';
 
   return (
-    <div className="bg-muted mx-5 rounded-lg px-5 py-3 flex justify-between items-center sticky top-5 h-16 z-10">
+    <div className="border border-[hsl(var(--border))] bg-card text-card-foreground mx-5 rounded-lg px-5 py-3 flex justify-between items-center sticky top-5 h-16 z-10">
       <Navigation />
       <div className="flex justify-center items-center gap-2">
         <ModeToggle />
@@ -36,13 +37,14 @@ export default function Navbar({ user }: Props) {
           <DropdownMenuTrigger asChild>
             <Avatar className="cursor-pointer">
               {user.image && <AvatarImage src={user.image} />}
-              <AvatarFallback className="flex justify-center items-center h-10 w-10 rounded-full bg-card text-card-foreground">
+              <AvatarFallback className="flex justify-center items-center h-10 w-10 rounded-full border border-input hover:bg-accent">
                 {avatarFallback}
               </AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem>
+              <PiSignOut />
               <SignOut />
             </DropdownMenuItem>
           </DropdownMenuContent>
