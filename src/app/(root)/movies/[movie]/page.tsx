@@ -65,9 +65,9 @@ export default async function MoviePage({
   return (
     <>
       <Backdrop backdropPath={movieDetails.backdrop_path} />
-      <div className="flex flex-col items-center gap-10 min-h-[calc(100vh-4rem-1.25rem)] max-w-full mt-5 z-10 mb-10">
-        <div className="flex gap-2 px-5 min-h-[calc(100vh-4rem-1.25rem-1.25rem)]">
-          <div className="flex justify-center items-center basis-[33%] min-w-[370px]">
+      <div className="flex flex-col items-center gap-10 min-h-[calc(100vh-4rem-2.5rem)] max-w-full mt-5 z-10 pb-10">
+        <div className="flex gap-2 px-5 min-h-[calc(100vh-4rem-1.25rem-1.25rem)] ">
+          <div className="flex justify-center items-center basis-1/3 min-w-[370px]">
             <TmdbImage
               image={movieDetails.poster_path}
               title={movieDetails.title}
@@ -76,7 +76,7 @@ export default async function MoviePage({
               priority={true}
             />
           </div>
-          <div className="basis-[67%] flex flex-col justify-center items-center w-full">
+          <div className="basis-2/3 flex flex-col justify-center items-center w-full">
             <div
               className="w-full flex flex-col justify-between"
               style={{ height: `${370 * 1.5}px` }}
@@ -318,15 +318,15 @@ export default async function MoviePage({
           listName="Cast"
           elements={movieDetails.credits.cast}
           type="cast"
-          writeTitle={true}
           additionalInformation={true}
           loop={false}
+          writeText={true}
         />
         <CarouselList
           listName="Crew"
           elements={crew}
           type="crew"
-          writeTitle={true}
+          writeText={true}
           additionalInformation={true}
           loop={false}
         />

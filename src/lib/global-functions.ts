@@ -1,5 +1,14 @@
-import { MediaDetails, VideoItem } from '@/utils/global-interfaces';
-import { Crew } from '@/utils/person-interfaces';
+import {
+  MediaDetails,
+  MediaSummary,
+  VideoItem,
+} from '@/utils/global-interfaces';
+import {
+  CastCredit,
+  CombinedCredits,
+  Crew,
+  CrewCredit,
+} from '@/utils/person-interfaces';
 import { ApiError } from 'next/dist/server/api-utils';
 
 export async function fetchData(
@@ -63,22 +72,62 @@ export function getTrailer(media: MediaDetails): VideoItem | null {
   else return videosTrailer[0];
 }
 
-export function filterCrew(media: MediaDetails) {
-  const filteredCrew: Crew[] = [];
-  const ids: number[] = [];
+export function filterCrew(media: MediaDetails | CombinedCredits) {
+  const filteredCrew = new Map<number, Crew | CrewCredit>();
 
-  for (const crewMember of media.credits.crew) {
-    if (!ids.includes(crewMember.id)) {
-      ids.push(crewMember.id);
-      filteredCrew.push(crewMember);
+  const crew = 'credits' in media ? media.credits.crew : media.crew;
+
+  for (const crewMember of crew) {
+    if (filteredCrew.has(crewMember.id)) {
+      filteredCrew.get(crewMember.id)!.job += `, ${crewMember.job}`;
     } else {
-      const crewMemberTmp = filteredCrew.find(
-        (filteredCrewMember) => filteredCrewMember.id === crewMember.id
-      );
-      if (crewMemberTmp) {
-        crewMemberTmp.job += `, ${crewMember.job}`;
-      }
+      filteredCrew.set(crewMember.id, { ...crewMember });
     }
   }
-  return filteredCrew;
+  return Array.from(filteredCrew.values());
+}
+
+export function filterCastCredit(castCredit: CastCredit[]) {
+  const filteredCast = new Map<number, CastCredit>();
+
+  for (const cast of castCredit) {
+    if (filteredCast.has(cast.id)) {
+      filteredCast.get(cast.id)!.character += `, ${cast.character}`;
+    } else {
+      filteredCast.set(cast.id, { ...cast });
+    }
+  }
+
+  return Array.from(filteredCast.values());
+}
+
+export function compareByPopularity(
+  a: MediaSummary,
+  b: MediaSummary,
+  order: string
+): number {
+  const popularityScoreA: number = a.vote_average * a.vote_count;
+  const popularityScoreB: number = b.vote_average * b.vote_count;
+
+  if (order === 'descending') return popularityScoreB - popularityScoreA;
+  else return popularityScoreA - popularityScoreB;
+}
+export function compareByDate(
+  a: CastCredit | CrewCredit,
+  b: CastCredit | CrewCredit,
+  order: string
+) {
+  const dateA = new Date(a.release_date);
+  const dateB = new Date(b.release_date);
+
+  if (isNaN(dateA.getTime())) {
+    return order === 'ascending' ? -1 : 1;
+  }
+  if (isNaN(dateB.getTime())) {
+    return order === 'ascending' ? 1 : -1;
+  }
+
+  return order === 'ascending'
+    ? dateA.getTime() - dateB.getTime()
+    : dateB.getTime() - dateA.getTime();
 }

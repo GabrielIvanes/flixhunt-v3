@@ -25,6 +25,10 @@ export default function Navigation() {
       path: '/tv-shows',
     },
     {
+      name: 'Persons',
+      path: '/persons',
+    },
+    {
       name: 'Search',
       path: '/search',
     },

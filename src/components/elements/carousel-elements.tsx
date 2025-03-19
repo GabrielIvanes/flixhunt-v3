@@ -17,7 +17,7 @@ interface Props {
   elements: ElementInterface[];
   type: 'movies' | 'tv-shows' | 'cast' | 'crew';
   additionalInformation?: boolean;
-  writeTitle?: boolean;
+  writeText?: boolean;
   loop?: boolean;
 }
 
@@ -25,7 +25,7 @@ export default function CarouselElements({
   elements,
   type,
   additionalInformation,
-  writeTitle,
+  writeText,
   loop = true,
 }: Props) {
   return (
@@ -46,12 +46,17 @@ export default function CarouselElements({
                   ? (element as Media).poster_path
                   : (element as Person).profile_path
               }
+              imageStyle={{
+                // width: '175px',
+                // height: `${175 * 1.5}px`,
+                borderRadius: 'var(--radius)',
+              }}
               title={
                 type === 'movies'
                   ? (element as Media).title
                   : (element as Person).name
               }
-              width={175}
+              imageFill={true}
               type={type}
               additionalInformation={
                 additionalInformation
@@ -62,13 +67,33 @@ export default function CarouselElements({
                     : (element as Crew).job
                   : undefined
               }
-              writeTitle={writeTitle}
+              writeText={writeText}
+              text={
+                type === 'movies'
+                  ? (element as Media).title
+                  : (element as Person).name
+              }
+              imagePriority={false}
+              width={175}
+              height={175 * 1.5}
             />
           </CarouselItem>
         ))}
       </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
+      <CarouselPrevious
+        className={
+          writeText
+            ? `-left-12 top-[calc(87.5px+2rem)]`
+            : '-left-12 top-1/2 -translate-y-1/2'
+        }
+      />
+      <CarouselNext
+        className={
+          writeText
+            ? `-right-12 top-[calc(87.5px+2rem)]`
+            : '-right-12 top-1/2 -translate-y-1/2'
+        }
+      />
     </Carousel>
   );
 }

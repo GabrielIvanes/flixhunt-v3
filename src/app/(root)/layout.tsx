@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import '../globals.css';
 import Navbar from '@/components/layout/navbar';
-import { ThemeProvider } from '@/components/theme-provider';
+import { ThemeProvider } from '@/components/theme/theme-provider';
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import { Lexend, Montserrat, Rubik } from 'next/font/google';

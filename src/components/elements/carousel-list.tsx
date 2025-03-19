@@ -7,7 +7,7 @@ interface Props {
   elements: Element[];
   type: 'movies' | 'tv-shows' | 'cast' | 'crew';
   additionalInformation?: boolean;
-  writeTitle?: boolean;
+  writeText?: boolean;
   loop?: boolean;
 }
 
@@ -16,7 +16,7 @@ export default function CarouselList({
   elements,
   type,
   additionalInformation,
-  writeTitle,
+  writeText,
   loop,
 }: Props) {
   return (
@@ -29,7 +29,7 @@ export default function CarouselList({
         elements={elements}
         type={type}
         additionalInformation={additionalInformation}
-        writeTitle={writeTitle}
+        writeText={writeText}
         loop={loop}
       />
     </div>

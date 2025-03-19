@@ -13,6 +13,7 @@ interface TmdbImageProps extends Omit<ImageProps, 'src' | 'alt'> {
   height?: number;
   style?: CSSProperties;
   priority?: boolean;
+  fill?: boolean;
 }
 
 export default function TmdbImage({
@@ -23,6 +24,7 @@ export default function TmdbImage({
   height,
   style,
   priority = false,
+  fill = false,
 }: TmdbImageProps) {
   const baseUrl = UseTmdb().images.secure_base_url || UseTmdb().images.base_url;
   const [isLoaded, setIsLoaded] = useState(false);
@@ -45,13 +47,14 @@ export default function TmdbImage({
         src={`${baseUrl}original${image}`}
         alt={title}
         className={className}
-        width={width}
-        height={height}
+        width={fill ? undefined : width}
+        height={fill ? undefined : height}
         style={{
           ...style,
           opacity: isLoaded ? 1 : 0,
           transition: 'opacity 0.3s ease-in-out',
         }}
+        fill={fill}
         priority={priority}
         onLoadingComplete={() => setIsLoaded(true)}
       />

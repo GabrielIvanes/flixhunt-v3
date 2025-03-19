@@ -10,24 +10,37 @@ import {
   TooltipTrigger,
 } from '../ui/tooltip';
 import { P } from '../ui/typography';
+import { CSSProperties } from 'react';
 
 interface Props {
   id: number;
   image: string;
+  imageClassname?: string;
+  imageStyle?: CSSProperties;
+  imagePriority?: boolean;
+  imageFill?: boolean;
   title: string;
   width: number;
+  height: number;
   type: 'movies' | 'tv-shows' | 'cast' | 'crew';
   additionalInformation?: string;
-  writeTitle?: boolean;
+  text?: string;
+  writeText?: boolean;
 }
 
 export default function Element({
   id,
   image,
+  imageClassname,
+  imageStyle,
+  imagePriority = false,
+  imageFill = false,
   title,
   width,
+  height,
   type,
-  writeTitle = false,
+  writeText = false,
+  text,
   additionalInformation,
 }: Props) {
   return (
@@ -49,17 +62,18 @@ export default function Element({
                   image={image}
                   title={title}
                   width={width}
-                  height={width * 1.5}
-                  style={{
-                    borderRadius: 'var(--radius)',
-                  }}
+                  height={height}
+                  style={imageStyle}
+                  className={imageClassname}
+                  priority={imagePriority}
+                  fill={imageFill}
                 />
               ) : (
                 <div
                   className="bg-card flex flex-col justify-center items-center px-2"
                   style={{
                     width: `${width}px`,
-                    height: `${width * 1.5}px`,
+                    height: `${height}px`,
                     borderRadius: 'var(--radius)',
                   }}
                 >
@@ -81,17 +95,18 @@ export default function Element({
           image={image}
           title={title}
           width={width}
-          height={width * 1.5}
-          style={{
-            borderRadius: 'var(--radius)',
-          }}
+          height={height}
+          style={imageStyle}
+          className={imageClassname}
+          priority={imagePriority}
+          fill={imageFill}
         />
       ) : (
         <div
           className="bg-card flex flex-col justify-center items-center px-2"
           style={{
             width: `${width}px`,
-            height: `${width * 1.5}px`,
+            height: `${height}px`,
             borderRadius: 'var(--radius)',
           }}
         >
@@ -104,7 +119,7 @@ export default function Element({
           />
         </div>
       )}
-      {writeTitle && <P text={title} />}
+      {writeText && text && <P text={text} classname="text-center" />}
     </div>
   );
 }
