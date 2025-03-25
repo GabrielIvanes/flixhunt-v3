@@ -1,7 +1,7 @@
 'use client';
 
 import { CiImageOff } from 'react-icons/ci';
-import { redirect } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import TmdbImage from '../ui/tmdb-image';
 import {
   Tooltip,
@@ -22,7 +22,7 @@ interface Props {
   title: string;
   width: number;
   height: number;
-  type: 'movies' | 'tv-shows' | 'cast' | 'crew';
+  type: 'movies' | 'tv-shows' | 'cast' | 'crew' | 'seasons' | 'episodes';
   additionalInformation?: string;
   text?: string;
   writeText?: boolean;
@@ -43,13 +43,23 @@ export default function Element({
   text,
   additionalInformation,
 }: Props) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const tvShowId = pathname.split('/')[2];
+  const seasonNumber = pathname.split('/')[4];
   return (
     <div
       className={`flex flex-col items-center cursor-pointer`}
       style={{ width: `${width}px`, maxWidth: `${width}px` }}
       onClick={() =>
-        redirect(
-          `/${type == 'crew' || type == 'cast' ? 'persons' : type}/${id}`
+        router.push(
+          type === 'seasons'
+            ? `${tvShowId}/seasons/${id}`
+            : type === 'episodes'
+            ? `${seasonNumber}/episodes/${id}`
+            : type === 'cast' || type === 'crew'
+            ? `/persons/${id}`
+            : `/${type}/${id}`
         )
       }
     >

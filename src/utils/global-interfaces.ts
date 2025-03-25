@@ -1,11 +1,33 @@
 import { MovieDetails, MovieSummary } from './movie-interfaces';
-import { Cast, Crew } from './person-interfaces';
+import {
+  Cast,
+  Crew,
+  MediaCastCredit,
+  MediaCrewCredit,
+} from './person-interfaces';
+import {
+  AggregateCast,
+  AggregateCrew,
+  EpisodeDetails,
+  EpisodeSeason,
+  EpisodeSummary,
+  SeasonDetails,
+  SeasonSummary,
+  TvShowDetails,
+  TvShowSummary,
+} from './tv-show-interfaces';
 
-export type Element = MovieDetails | MovieSummary | Crew | Cast;
-export type Media = MovieDetails | MovieSummary;
-export type MediaSummary = MovieSummary;
-export type MediaDetails = MovieDetails;
-export type Person = Crew | Cast;
+export type Element = Person | Media | MediaCredit | Season | Episode;
+
+export type MediaCredit = MediaCastCredit | MediaCrewCredit;
+export type Media = MediaSummary | MediaDetails;
+export type MediaSummary = MovieSummary | TvShowSummary;
+export type MediaDetails = MovieDetails | TvShowDetails;
+export type Person = Crew | Cast | AggregateCrew | AggregateCast;
+export type Movie = MovieSummary | MovieDetails;
+export type TvShow = TvShowSummary | TvShowDetails;
+export type Season = SeasonSummary | SeasonDetails;
+export type Episode = EpisodeSummary | EpisodeSeason | EpisodeDetails;
 
 export interface Genre {
   id: number;
@@ -88,4 +110,14 @@ export interface Certification {
 
 export interface CountryCertifications {
   [countryCode: string]: Certification[];
+}
+
+export interface Filters {
+  page: number;
+  genres: Genre[] | undefined;
+  dateGte: number | undefined;
+  dateLte: number | undefined;
+  voteGte: number | undefined;
+  rateGte: number | undefined;
+  rateLte: number | undefined;
 }

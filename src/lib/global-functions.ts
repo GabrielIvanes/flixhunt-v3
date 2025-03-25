@@ -1,14 +1,17 @@
+import { MediaDetails, VideoItem } from '@/utils/global-interfaces';
+import { MovieDetails } from '@/utils/movie-interfaces';
 import {
-  MediaDetails,
-  MediaSummary,
-  VideoItem,
-} from '@/utils/global-interfaces';
-import {
-  CastCredit,
+  MediaCastCredit,
   CombinedCredits,
   Crew,
-  CrewCredit,
+  MediaCrewCredit,
 } from '@/utils/person-interfaces';
+import {
+  AggregateCrew,
+  EpisodeDetails,
+  SeasonDetails,
+  TvShowDetails,
+} from '@/utils/tv-show-interfaces';
 import { ApiError } from 'next/dist/server/api-utils';
 
 export async function fetchData(
@@ -45,10 +48,14 @@ export function convertTime(minutes: number) {
 }
 
 export function getDirectors(media: MediaDetails) {
-  return media.credits.crew.filter((person) => person.job === 'Director');
+  return 'credits' in media
+    ? media.credits.crew.filter((person) => person.job === 'Director')
+    : media.created_by;
 }
 
-export function getTrailer(media: MediaDetails): VideoItem | null {
+export function getTrailer(
+  media: MediaDetails | SeasonDetails | EpisodeDetails
+): VideoItem | null {
   let videosTrailer = media.videos.results.filter(
     (video) => video.type === 'Trailer' && video.site === 'YouTube'
   );
@@ -72,8 +79,10 @@ export function getTrailer(media: MediaDetails): VideoItem | null {
   else return videosTrailer[0];
 }
 
-export function filterCrew(media: MediaDetails | CombinedCredits) {
-  const filteredCrew = new Map<number, Crew | CrewCredit>();
+export function filterCrew(
+  media: MovieDetails | CombinedCredits | SeasonDetails | EpisodeDetails
+) {
+  const filteredCrew = new Map<number, Crew | MediaCrewCredit>();
 
   const crew = 'credits' in media ? media.credits.crew : media.crew;
 
@@ -87,10 +96,32 @@ export function filterCrew(media: MediaDetails | CombinedCredits) {
   return Array.from(filteredCrew.values());
 }
 
-export function filterCastCredit(castCredit: CastCredit[]) {
-  const filteredCast = new Map<number, CastCredit>();
+export function filterAggregateCrew(media: TvShowDetails) {
+  const filteredCrew = new Map<number, AggregateCrew>();
 
-  for (const cast of castCredit) {
+  for (const crewMember of media.aggregate_credits.crew) {
+    if (filteredCrew.has(crewMember.id)) {
+      const existingCrewMember = filteredCrew.get(crewMember.id)!;
+      for (const job of crewMember.jobs) {
+        if (!existingCrewMember.jobs.some((j) => j.job === job.job)) {
+          existingCrewMember.jobs.push(job);
+        }
+      }
+    } else {
+      filteredCrew.set(crewMember.id, {
+        ...crewMember,
+        jobs: [...crewMember.jobs],
+      });
+    }
+  }
+
+  return Array.from(filteredCrew.values());
+}
+
+export function filterCastCredit(MediaCastCredit: MediaCastCredit[]) {
+  const filteredCast = new Map<number, MediaCastCredit>();
+
+  for (const cast of MediaCastCredit) {
     if (filteredCast.has(cast.id)) {
       filteredCast.get(cast.id)!.character += `, ${cast.character}`;
     } else {
@@ -102,8 +133,8 @@ export function filterCastCredit(castCredit: CastCredit[]) {
 }
 
 export function compareByPopularity(
-  a: MediaSummary,
-  b: MediaSummary,
+  a: MediaCastCredit | MediaCrewCredit,
+  b: MediaCastCredit | MediaCrewCredit,
   order: string
 ): number {
   const popularityScoreA: number = a.vote_average * a.vote_count;
@@ -113,12 +144,16 @@ export function compareByPopularity(
   else return popularityScoreA - popularityScoreB;
 }
 export function compareByDate(
-  a: CastCredit | CrewCredit,
-  b: CastCredit | CrewCredit,
+  a: MediaCastCredit | MediaCrewCredit,
+  b: MediaCastCredit | MediaCrewCredit,
   order: string
 ) {
-  const dateA = new Date(a.release_date);
-  const dateB = new Date(b.release_date);
+  const dateA = new Date(
+    ('release_date' in a ? a.release_date : a.first_air_date) ?? ''
+  );
+  const dateB = new Date(
+    ('release_date' in b ? b.release_date : b.first_air_date) ?? ''
+  );
 
   if (isNaN(dateA.getTime())) {
     return order === 'ascending' ? -1 : 1;

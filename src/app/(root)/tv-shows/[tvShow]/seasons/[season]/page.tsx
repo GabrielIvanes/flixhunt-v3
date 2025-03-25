@@ -1,5 +1,3 @@
-// test avec lui: 1204967
-
 import CarouselList from '@/components/elements/carousel-list';
 import Backdrop from '@/components/ui/backdrop';
 import { Button } from '@/components/ui/button';
@@ -10,6 +8,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 import TmdbImage from '@/components/ui/tmdb-image';
 import {
   Tooltip,
@@ -17,62 +24,49 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import {
-  H1,
-  H3,
-  InformationP,
-  Lead,
-  LinkP,
-  P,
-} from '@/components/ui/typography';
-import {
-  convertTime,
-  filterCrew,
-  getDirectors,
-  getTrailer,
-} from '@/lib/global-functions';
-import { getMovie } from '@/lib/movie-functions';
-import { getCertificationsMeaning } from '@/lib/tmdb-config-functions';
-import Link from 'next/link';
+import { H1, H3, InformationP, P } from '@/components/ui/typography';
+import { filterCrew, getTrailer } from '@/lib/global-functions';
+import { getSeason, getTvShow } from '@/lib/tv-show-functions';
 import { CiBookmark, CiBoxList, CiHeart, CiPen, CiPlay1 } from 'react-icons/ci';
 import { FaRegEyeSlash } from 'react-icons/fa';
-import { TbMovieOff } from 'react-icons/tb';
 
-export default async function MoviePage({
+export default async function Season({
   params,
 }: {
-  params: Promise<{ movie: string }>;
+  params: Promise<{ tvShow: string; season: string }>;
 }) {
-  const { movie: id } = await params;
-  const movieDetails = await getMovie(id);
-  console.log(movieDetails);
+  const { tvShow: tvShowId, season: id } = await params;
+  const seasonDetails = await getSeason(tvShowId, id);
+  const tvShowDetails = await getTvShow(tvShowId);
+  console.log(seasonDetails);
   const countryCode = 'US';
-  const directors = getDirectors(movieDetails);
+  const crew = filterCrew(seasonDetails);
   const providers =
-    movieDetails['watch/providers']?.results[countryCode]?.flatrate;
-  const trailer = getTrailer(movieDetails);
-  const crew = filterCrew(movieDetails);
-  const certificationsMeaning = await getCertificationsMeaning('movie');
-  const countryCertifications = certificationsMeaning[countryCode];
-  console.log(countryCertifications);
-
-  const release_date = movieDetails.release_dates?.results.filter(
-    (result) => result.iso_3166_1 === countryCode
-  )[0]?.release_dates[0];
-  const certificationMeaning = countryCertifications.filter(
-    (countryCertification) =>
-      countryCertification.certification === release_date?.certification
-  )[0]?.meaning;
+    seasonDetails['watch/providers']?.results[countryCode]?.flatrate;
+  const trailer = getTrailer(seasonDetails);
 
   return (
     <>
-      <Backdrop backdropPath={movieDetails.backdrop_path} />
+      <Breadcrumb className="absolute left-5 top-24 z-20">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href={`/tv-shows/${tvShowId}`}>
+              {tvShowDetails.name}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{seasonDetails.name}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <Backdrop backdropPath={tvShowDetails.backdrop_path} />
       <div className="flex flex-col items-start pl-20 gap-10 min-h-[calc(100vh-4rem-2.5rem)] w-full max-w-full mt-5 z-10 pb-10">
         <div className="flex gap-2 px-5 min-h-[calc(100vh-4rem-1.25rem-1.25rem)] ">
           <div className="flex justify-center items-center basis-1/3 min-w-[370px]">
             <TmdbImage
-              image={movieDetails.poster_path}
-              title={movieDetails.title}
+              image={seasonDetails.poster_path}
+              title={seasonDetails.name}
               width={370}
               height={370 * 1.5}
               priority={true}
@@ -84,111 +78,44 @@ export default async function MoviePage({
               style={{ height: `${370 * 1.5}px` }}
             >
               <div className="grow max-h-full">
-                <H1 text={movieDetails.title} classname="mb-0" />
+                <H1 text={seasonDetails.name} classname="mb-0" />
                 <div className="flex gap-1 items-center mb-2">
-                  {release_date &&
-                    release_date.certification &&
-                    (certificationMeaning ? (
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <InformationP
-                              text={`${release_date.certification}`}
-                              classname="border border-[hsl(var(--border))] py-1 px-2 mr-2"
-                              style={{ borderRadius: 'var(--radius)' }}
-                            />
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-[500px] break-words text-justify">
-                            <p>{certificationMeaning}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    ) : (
-                      <InformationP
-                        text={`${release_date.certification}`}
-                        classname="border border-[hsl(var(--border))] py-1 px-2 mr-2"
-                        style={{ borderRadius: 'var(--radius)' }}
-                      />
-                    ))}
                   <InformationP
                     text={`${
-                      release_date && release_date.release_date
-                        ? release_date.release_date.slice(0, 4)
-                        : movieDetails.release_date
-                        ? movieDetails.release_date.slice(0, 4)
+                      seasonDetails.air_date
+                        ? seasonDetails.air_date.slice(0, 4)
                         : ''
-                    } ${
-                      (movieDetails.release_date ||
-                        (release_date && release_date.release_date)) &&
-                      ((movieDetails.runtime && movieDetails.runtime > 0) ||
-                        movieDetails.vote_average ||
-                        movieDetails.genres.length > 0)
+                    }  ${
+                      seasonDetails.air_date &&
+                      ((seasonDetails.episodes &&
+                        seasonDetails.episodes.length > 0) ||
+                        seasonDetails.vote_average)
                         ? '•'
                         : ''
                     } ${
-                      movieDetails.runtime && movieDetails.runtime > 0
-                        ? convertTime(movieDetails.runtime)
+                      seasonDetails.episodes &&
+                      seasonDetails.episodes.length > 0
+                        ? `${seasonDetails.episodes.length} ep`
                         : ''
                     } ${
-                      movieDetails.runtime &&
-                      movieDetails.runtime > 0 &&
-                      (movieDetails.vote_average ||
-                        movieDetails.genres.length > 0)
+                      seasonDetails.episodes &&
+                      seasonDetails.episodes.length > 0 &&
+                      seasonDetails.vote_average
                         ? '•'
                         : ''
                     } ${
-                      movieDetails.vote_average
-                        ? movieDetails.vote_average.toFixed(1) + '/10'
-                        : ''
-                    } ${
-                      movieDetails.vote_average &&
-                      movieDetails.genres.length > 0
-                        ? '•'
+                      seasonDetails.vote_average
+                        ? seasonDetails.vote_average.toFixed(1) + '/10'
                         : ''
                     }`}
                   />
-
-                  {movieDetails.genres.length > 0 && (
-                    <div className="h-fit text-sm">
-                      {movieDetails.genres.map((genre, index) => (
-                        <span key={genre.id}>
-                          {index != 0 &&
-                            index != movieDetails.genres.length && (
-                              <span className="text-sm">, </span>
-                            )}
-                          <Link href="/" className="text-sm">
-                            <LinkP
-                              text={genre.name}
-                              classname="inline text-sm"
-                            />
-                          </Link>
-                        </span>
-                      ))}
-                    </div>
-                  )}
                 </div>
 
-                <H3 text="Directors" />
-                {directors && directors.length > 0 ? (
-                  directors.map((director, index) => (
-                    <span key={director.id}>
-                      {index != 0 && index != directors.length && (
-                        <span>, </span>
-                      )}
-                      <Link href={`/persons/${director.id}`}>
-                        <LinkP text={director.name} classname="inline" />
-                      </Link>
-                    </span>
-                  ))
-                ) : (
-                  <P text="There is no director provided." />
-                )}
-                <Lead text={movieDetails.tagline} />
                 <H3 text="Overview" />
                 <P
                   text={
-                    movieDetails.overview
-                      ? movieDetails.overview
+                    seasonDetails.overview
+                      ? seasonDetails.overview
                       : 'There is no overview provided.'
                   }
                   classname="grow overflow-y-auto max-h-[200px]"
@@ -260,19 +187,6 @@ export default async function MoviePage({
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button size={'icon'} variant={'outline'}>
-                          <TbMovieOff />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-background text-muted-foreground">
-                        <p>Add it to your theater watchlist</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button size={'icon'} variant={'outline'}>
                           <CiBoxList />
                         </Button>
                       </TooltipTrigger>
@@ -325,8 +239,18 @@ export default async function MoviePage({
           </div>
         </div>
         <CarouselList
+          listName="Episode"
+          elements={seasonDetails.episodes}
+          type="episodes"
+          additionalInformation={true}
+          loop={false}
+          writeText={true}
+          width={150 * (16 / 9)}
+          height={150}
+        />
+        <CarouselList
           listName="Cast"
-          elements={movieDetails.credits.cast}
+          elements={seasonDetails.credits.cast}
           type="cast"
           additionalInformation={true}
           loop={false}
@@ -339,11 +263,6 @@ export default async function MoviePage({
           writeText={true}
           additionalInformation={true}
           loop={false}
-        />
-        <CarouselList
-          listName="Recommendations"
-          elements={movieDetails.recommendations.results}
-          type="movies"
         />
       </div>
     </>

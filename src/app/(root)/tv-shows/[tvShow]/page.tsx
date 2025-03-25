@@ -26,53 +26,52 @@ import {
   P,
 } from '@/components/ui/typography';
 import {
-  convertTime,
-  filterCrew,
+  filterAggregateCrew,
   getDirectors,
   getTrailer,
 } from '@/lib/global-functions';
-import { getMovie } from '@/lib/movie-functions';
 import { getCertificationsMeaning } from '@/lib/tmdb-config-functions';
+import { getTvShow, getTvShowDate } from '@/lib/tv-show-functions';
 import Link from 'next/link';
 import { CiBookmark, CiBoxList, CiHeart, CiPen, CiPlay1 } from 'react-icons/ci';
 import { FaRegEyeSlash } from 'react-icons/fa';
-import { TbMovieOff } from 'react-icons/tb';
 
 export default async function MoviePage({
   params,
 }: {
-  params: Promise<{ movie: string }>;
+  params: Promise<{ tvShow: string }>;
 }) {
-  const { movie: id } = await params;
-  const movieDetails = await getMovie(id);
-  console.log(movieDetails);
+  const { tvShow: id } = await params;
+  const tvShowDetails = await getTvShow(id);
+  console.log(tvShowDetails);
   const countryCode = 'US';
-  const directors = getDirectors(movieDetails);
+  const directors = getDirectors(tvShowDetails);
+  const crew = filterAggregateCrew(tvShowDetails);
   const providers =
-    movieDetails['watch/providers']?.results[countryCode]?.flatrate;
-  const trailer = getTrailer(movieDetails);
-  const crew = filterCrew(movieDetails);
-  const certificationsMeaning = await getCertificationsMeaning('movie');
+    tvShowDetails['watch/providers']?.results[countryCode]?.flatrate;
+  const trailer = getTrailer(tvShowDetails);
+  const certificationsMeaning = await getCertificationsMeaning('tv');
   const countryCertifications = certificationsMeaning[countryCode];
   console.log(countryCertifications);
 
-  const release_date = movieDetails.release_dates?.results.filter(
+  const content_rating = tvShowDetails.content_ratings.results.filter(
     (result) => result.iso_3166_1 === countryCode
-  )[0]?.release_dates[0];
+  )[0];
+
   const certificationMeaning = countryCertifications.filter(
     (countryCertification) =>
-      countryCertification.certification === release_date?.certification
+      countryCertification.certification === content_rating?.rating
   )[0]?.meaning;
 
   return (
     <>
-      <Backdrop backdropPath={movieDetails.backdrop_path} />
+      <Backdrop backdropPath={tvShowDetails.backdrop_path} />
       <div className="flex flex-col items-start pl-20 gap-10 min-h-[calc(100vh-4rem-2.5rem)] w-full max-w-full mt-5 z-10 pb-10">
         <div className="flex gap-2 px-5 min-h-[calc(100vh-4rem-1.25rem-1.25rem)] ">
           <div className="flex justify-center items-center basis-1/3 min-w-[370px]">
             <TmdbImage
-              image={movieDetails.poster_path}
-              title={movieDetails.title}
+              image={tvShowDetails.poster_path}
+              title={tvShowDetails.name}
               width={370}
               height={370 * 1.5}
               priority={true}
@@ -84,16 +83,16 @@ export default async function MoviePage({
               style={{ height: `${370 * 1.5}px` }}
             >
               <div className="grow max-h-full">
-                <H1 text={movieDetails.title} classname="mb-0" />
+                <H1 text={tvShowDetails.name} classname="mb-0" />
                 <div className="flex gap-1 items-center mb-2">
-                  {release_date &&
-                    release_date.certification &&
+                  {content_rating &&
+                    content_rating.rating &&
                     (certificationMeaning ? (
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger>
                             <InformationP
-                              text={`${release_date.certification}`}
+                              text={`${content_rating.rating}`}
                               classname="border border-[hsl(var(--border))] py-1 px-2 mr-2"
                               style={{ borderRadius: 'var(--radius)' }}
                             />
@@ -105,55 +104,56 @@ export default async function MoviePage({
                       </TooltipProvider>
                     ) : (
                       <InformationP
-                        text={`${release_date.certification}`}
+                        text={`${content_rating.rating}`}
                         classname="border border-[hsl(var(--border))] py-1 px-2 mr-2"
                         style={{ borderRadius: 'var(--radius)' }}
                       />
                     ))}
                   <InformationP
-                    text={`${
-                      release_date && release_date.release_date
-                        ? release_date.release_date.slice(0, 4)
-                        : movieDetails.release_date
-                        ? movieDetails.release_date.slice(0, 4)
-                        : ''
+                    text={`${getTvShowDate(
+                      tvShowDetails.first_air_date,
+                      tvShowDetails.last_air_date,
+                      tvShowDetails.status
+                    )} ${
+                      tvShowDetails.first_air_date &&
+                      (tvShowDetails.number_of_seasons ||
+                        tvShowDetails.number_of_episodes ||
+                        tvShowDetails.vote_average ||
+                        tvShowDetails.genres.length > 0) &&
+                      '•'
                     } ${
-                      (movieDetails.release_date ||
-                        (release_date && release_date.release_date)) &&
-                      ((movieDetails.runtime && movieDetails.runtime > 0) ||
-                        movieDetails.vote_average ||
-                        movieDetails.genres.length > 0)
-                        ? '•'
-                        : ''
+                      tvShowDetails.number_of_seasons &&
+                      `${tvShowDetails.number_of_seasons} s`
                     } ${
-                      movieDetails.runtime && movieDetails.runtime > 0
-                        ? convertTime(movieDetails.runtime)
-                        : ''
+                      tvShowDetails.number_of_seasons &&
+                      (tvShowDetails.number_of_episodes ||
+                        tvShowDetails.vote_average ||
+                        tvShowDetails.genres.length > 0) &&
+                      '•'
                     } ${
-                      movieDetails.runtime &&
-                      movieDetails.runtime > 0 &&
-                      (movieDetails.vote_average ||
-                        movieDetails.genres.length > 0)
-                        ? '•'
-                        : ''
+                      tvShowDetails.number_of_episodes &&
+                      `${tvShowDetails.number_of_episodes} ep`
                     } ${
-                      movieDetails.vote_average
-                        ? movieDetails.vote_average.toFixed(1) + '/10'
-                        : ''
+                      tvShowDetails.number_of_episodes &&
+                      (tvShowDetails.vote_average ||
+                        tvShowDetails.genres.length > 0) &&
+                      '•'
                     } ${
-                      movieDetails.vote_average &&
-                      movieDetails.genres.length > 0
-                        ? '•'
-                        : ''
+                      tvShowDetails.vote_average &&
+                      tvShowDetails.vote_average.toFixed(1) + '/10'
+                    } ${
+                      tvShowDetails.vote_average &&
+                      tvShowDetails.genres.length > 0 &&
+                      '•'
                     }`}
                   />
 
-                  {movieDetails.genres.length > 0 && (
+                  {tvShowDetails.genres.length > 0 && (
                     <div className="h-fit text-sm">
-                      {movieDetails.genres.map((genre, index) => (
+                      {tvShowDetails.genres.map((genre, index) => (
                         <span key={genre.id}>
                           {index != 0 &&
-                            index != movieDetails.genres.length && (
+                            index != tvShowDetails.genres.length && (
                               <span className="text-sm">, </span>
                             )}
                           <Link href="/" className="text-sm">
@@ -183,12 +183,12 @@ export default async function MoviePage({
                 ) : (
                   <P text="There is no director provided." />
                 )}
-                <Lead text={movieDetails.tagline} />
+                <Lead text={tvShowDetails.tagline} />
                 <H3 text="Overview" />
                 <P
                   text={
-                    movieDetails.overview
-                      ? movieDetails.overview
+                    tvShowDetails.overview
+                      ? tvShowDetails.overview
                       : 'There is no overview provided.'
                   }
                   classname="grow overflow-y-auto max-h-[200px]"
@@ -260,19 +260,6 @@ export default async function MoviePage({
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button size={'icon'} variant={'outline'}>
-                          <TbMovieOff />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-background text-muted-foreground">
-                        <p>Add it to your theater watchlist</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button size={'icon'} variant={'outline'}>
                           <CiBoxList />
                         </Button>
                       </TooltipTrigger>
@@ -325,8 +312,16 @@ export default async function MoviePage({
           </div>
         </div>
         <CarouselList
+          listName="Seasons"
+          elements={tvShowDetails.seasons}
+          type="seasons"
+          additionalInformation={true}
+          loop={false}
+          writeText={true}
+        />
+        <CarouselList
           listName="Cast"
-          elements={movieDetails.credits.cast}
+          elements={tvShowDetails.aggregate_credits.cast}
           type="cast"
           additionalInformation={true}
           loop={false}
@@ -342,8 +337,8 @@ export default async function MoviePage({
         />
         <CarouselList
           listName="Recommendations"
-          elements={movieDetails.recommendations.results}
-          type="movies"
+          elements={tvShowDetails.recommendations.results}
+          type="tv-shows"
         />
       </div>
     </>

@@ -1,4 +1,3 @@
-import { MediaSummary } from './global-interfaces';
 export interface Cast {
   adult: boolean;
   gender: number;
@@ -46,64 +45,64 @@ export interface PersonDetails {
 }
 
 export interface CombinedCredits {
-  cast: CastCredit[];
-  crew: CrewCredit[];
+  cast: MediaCastCredit[];
+  crew: MediaCrewCredit[];
 }
 
-export interface CastCredit extends MediaSummary {
-  character: string;
-  credit_id: string;
-  media_type: 'movie' | 'tv';
-  order: number;
-  video: boolean;
-}
-
-export interface CrewCredit extends MediaSummary {
-  credit_id: string;
-  department: string;
-  job: string;
-  media_type: 'movie' | 'tv';
-  video: boolean;
-}
-
-// interface BaseCredit {
-//   adult: boolean;
-//   backdrop_path: string | null;
-//   genre_ids: number[];
-//   id: number;
-//   original_language: string;
-//   overview: string;
-//   popularity: number;
-//   poster_path: string | null;
-//   vote_average: number;
-//   vote_count: number;
+// export interface MediaCastCredit extends MediaSummary {
+//   character: string;
 //   credit_id: string;
 //   media_type: 'movie' | 'tv';
+//   order: number;
+//   video: boolean;
 // }
 
-// interface CastCredit extends BaseCredit {
-//   origin_country?: string[];
-//   original_name?: string;
-//   original_title?: string;
-//   first_air_date?: string;
-//   release_date?: string;
-//   name?: string;
-//   title?: string;
-//   character: string;
-//   episode_count?: number;
-//   video?: boolean;
-// }
-
-// interface CrewCredit extends BaseCredit {
+// export interface MediaCrewCredit extends MediaSummary {
+//   credit_id: string;
 //   department: string;
 //   job: string;
-//   origin_country?: string[];
-//   original_name?: string;
-//   original_title?: string;
-//   first_air_date?: string;
-//   release_date?: string;
-//   name?: string;
-//   title?: string;
-//   episode_count?: number;
-//   video?: boolean;
+//   media_type: 'movie' | 'tv';
+//   video: boolean;
 // }
+
+interface BaseCredit {
+  adult: boolean;
+  backdrop_path: string;
+  genre_ids: number[];
+  id: number;
+  original_language: string;
+  overview: string;
+  popularity: number;
+  poster_path: string;
+  vote_average: number;
+  vote_count: number;
+  credit_id: string;
+  media_type: 'movie' | 'tv';
+}
+
+export interface MediaCastCredit extends BaseCredit {
+  origin_country: string[];
+  original_name: string;
+  original_title: string;
+  first_air_date: string;
+  release_date: string;
+  name: string;
+  title: string;
+  character: string;
+  episode_count: number;
+  video: boolean;
+}
+
+export interface MediaCrewCredit extends BaseCredit {
+  department: string;
+  job: string;
+  origin_country: string[];
+  original_name: string;
+  original_title: string;
+  first_air_date: string;
+  release_date?: string;
+  name: string;
+  title: string;
+  episode_count: number;
+  video: boolean;
+}

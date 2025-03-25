@@ -1,6 +1,6 @@
 import {
-  CastCredit,
-  CrewCredit,
+  MediaCastCredit,
+  MediaCrewCredit,
   PersonDetails,
 } from '@/utils/person-interfaces';
 import {
@@ -48,7 +48,7 @@ export function getPersonAge(birthday: string, deathday: string) {
 
 export function sortArray(
   sortType: string,
-  credit: CastCredit[] | CrewCredit[]
+  credit: MediaCastCredit[] | MediaCrewCredit[]
 ) {
   const sort = sortType.split('-');
   const sortedCredit = credit.sort((a, b) => {

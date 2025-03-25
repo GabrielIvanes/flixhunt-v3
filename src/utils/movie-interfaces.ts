@@ -28,12 +28,7 @@ export interface MovieDetails {
   poster_path: string;
   production_companies: ProductionCompany[];
   production_countries: ProductionCountry[];
-  recommendations: {
-    page: number;
-    results: MovieSummary[];
-    total_pages: number;
-    total_results: number;
-  };
+  recommendations: MoviesResult;
   release_date: string;
   release_dates: { results: CountryRelease[] };
   revenue: number;
@@ -80,4 +75,11 @@ export interface ReleaseDate {
 export interface CountryRelease {
   iso_3166_1: string;
   release_dates: ReleaseDate[];
+}
+
+export interface MoviesResult {
+  page: number;
+  results: MovieSummary[];
+  total_pages: number;
+  total_results: number;
 }

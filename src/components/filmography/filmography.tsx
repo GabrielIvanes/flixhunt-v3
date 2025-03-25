@@ -1,9 +1,9 @@
 'use client';
 
 import {
-  CastCredit,
+  MediaCastCredit,
   CombinedCredits,
-  CrewCredit,
+  MediaCrewCredit,
 } from '@/utils/person-interfaces';
 import { useMemo, useState } from 'react';
 
@@ -37,12 +37,12 @@ export default function Filmography({
   const [sortType, setSortType] = useState<string>('popularity-descending');
 
   const filteredMedia = useMemo(() => {
-    let data: CastCredit[] | CrewCredit[] = [];
+    let data: MediaCastCredit[] | MediaCrewCredit[] = [];
 
     if (role === 'cast') {
       data = filterCastCredit(combinedCredits.cast);
     } else if (role === 'crew') {
-      data = filterCrew(combinedCredits) as CrewCredit[];
+      data = filterCrew(combinedCredits) as MediaCrewCredit[];
     } else if (role === 'director') {
       data = combinedCredits.crew.filter((crew) => crew.job === 'Director');
     }
@@ -102,10 +102,16 @@ export default function Filmography({
               additionalInformation={
                 'character' in media
                   ? media.character
-                  : (media as CrewCredit).job
+                  : (media as MediaCrewCredit).job
               }
-              writeText={media.release_date != null}
-              text={media.release_date && media.release_date.slice(0, 4)}
+              writeText={
+                media.release_date != null || media.first_air_date != null
+              }
+              text={
+                'release_date' in media && media.release_date
+                  ? media.release_date.slice(0, 4)
+                  : media.first_air_date && media.first_air_date.slice(0, 4)
+              }
             />
           ))
         ) : (
