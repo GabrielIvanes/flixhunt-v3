@@ -17,8 +17,12 @@ import { useEffect, useState } from 'react';
 import Element from '@/components/elements/element';
 import { H3 } from '@/components/ui/typography';
 import Pagination from '@/components/pagination/pagination';
+import { useSearchParams } from 'next/navigation';
 
 export default function TvShow() {
+  const searchParams = useSearchParams();
+  const genre = searchParams.get('genre');
+
   const [filters, setFilters] = useState<FiltersInterface>({
     page: 1,
     genres: undefined,
@@ -54,6 +58,15 @@ export default function TvShow() {
     const fetchGenres = async () => {
       const tvShowGenres = await getTvShowGenres();
       setGenres(tvShowGenres);
+
+      if (genre) {
+        const tvShowGenre = tvShowGenres.find((g) => g.id.toString() == genre);
+        if (tvShowGenre)
+          setFilters((prevFilters) => ({
+            ...prevFilters,
+            genres: [tvShowGenre],
+          }));
+      }
     };
 
     const fetchProviders = async () => {

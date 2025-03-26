@@ -156,7 +156,10 @@ export default async function MoviePage({
                             index != tvShowDetails.genres.length && (
                               <span className="text-sm">, </span>
                             )}
-                          <Link href="/" className="text-sm">
+                          <Link
+                            href={`/tv-shows?genre=${genre.id}`}
+                            className="text-sm"
+                          >
                             <LinkP
                               text={genre.name}
                               classname="inline text-sm"

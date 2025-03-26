@@ -156,7 +156,11 @@ export default async function MoviePage({
                             index != movieDetails.genres.length && (
                               <span className="text-sm">, </span>
                             )}
-                          <Link href="/" className="text-sm">
+                          <Link
+                            href={`/movies?genre=${genre.id}`}
+                            className="text-sm"
+                            prefetch={true}
+                          >
                             <LinkP
                               text={genre.name}
                               classname="inline text-sm"
@@ -175,7 +179,7 @@ export default async function MoviePage({
                       {index != 0 && index != directors.length && (
                         <span>, </span>
                       )}
-                      <Link href={`/persons/${director.id}`}>
+                      <Link href={`/persons/${director.id}`} prefetch={true}>
                         <LinkP text={director.name} classname="inline" />
                       </Link>
                     </span>

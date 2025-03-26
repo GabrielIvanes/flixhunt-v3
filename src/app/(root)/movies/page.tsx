@@ -19,8 +19,11 @@ import { H3 } from '@/components/ui/typography';
 import Pagination from '@/components/pagination/pagination';
 import ShowFilters from '@/components/filters/show-filters';
 import Filters from '@/components/filters/filters';
+import { useSearchParams } from 'next/navigation';
 
 export default function Movie() {
+  const searchParams = useSearchParams();
+  const genre = searchParams.get('genre');
   const [filters, setFilters] = useState<FiltersInterface>({
     page: 1,
     genres: undefined,
@@ -57,6 +60,15 @@ export default function Movie() {
     const fetchGenres = async () => {
       const movieGenres = await getMovieGenres();
       setGenres(movieGenres);
+
+      if (genre) {
+        const movieGenre = movieGenres.find((g) => g.id.toString() == genre);
+        if (movieGenre)
+          setFilters((prevFilters) => ({
+            ...prevFilters,
+            genres: [movieGenre],
+          }));
+      }
     };
 
     const fetchProviders = async () => {
