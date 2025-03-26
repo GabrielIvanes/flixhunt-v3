@@ -1,4 +1,9 @@
-import { MediaDetails, VideoItem } from '@/utils/global-interfaces';
+import {
+  KeywordsSearch,
+  MediaDetails,
+  PersonsSearch,
+  VideoItem,
+} from '@/utils/global-interfaces';
 import { MovieDetails } from '@/utils/movie-interfaces';
 import {
   MediaCastCredit,
@@ -165,4 +170,34 @@ export function compareByDate(
   return order === 'ascending'
     ? dateA.getTime() - dateB.getTime()
     : dateB.getTime() - dateA.getTime();
+}
+
+export async function getKeywords(query: string) {
+  const globalError = 'Failed to fetch keywords.';
+
+  try {
+    const url = `${process.env.BASE_URL}/api/tmdb/search/keywords?query=${query}`;
+    const option = { next: { revalidate: 3600 } };
+    const keywords: KeywordsSearch = await fetchData(url, globalError, option);
+    return keywords;
+  } catch (err) {
+    console.log(err);
+    if (err instanceof ApiError) throw err;
+    throw new Error(globalError);
+  }
+}
+
+export async function getPersons(query: string) {
+  const globalError = 'Failed to fetch persons.';
+
+  try {
+    const url = `${process.env.BASE_URL}/api/tmdb/search/persons?query=${query}`;
+    const option = { next: { revalidate: 3600 } };
+    const persons: PersonsSearch = await fetchData(url, globalError, option);
+    return persons;
+  } catch (err) {
+    console.log(err);
+    if (err instanceof ApiError) throw err;
+    throw new Error(globalError);
+  }
 }

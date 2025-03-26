@@ -5,7 +5,7 @@ import {
   MoviesResult,
   MovieSummary,
 } from '../utils/movie-interfaces';
-import { Filters, Genre } from '@/utils/global-interfaces';
+import { Filters, Genre, Providers } from '@/utils/global-interfaces';
 
 export async function getTheatreMovies() {
   const globalError = 'Failed to fetch theatre movies.';
@@ -58,14 +58,40 @@ export async function getTrendingMovies() {
   }
 }
 
-export async function getTopRatedMovies(filters: Filters) {
+export async function getTopRatedMovies(
+  filters: Filters,
+  region: string,
+  personsIn: boolean
+) {
   const globalError = 'Failed to fetch top-rated movies.';
 
   try {
     const genres = filters.genres?.map((genre) => genre.id).join(',');
+    const providers = filters.providers
+      ?.map((provider) => provider.provider_id)
+      .join('|');
+    const keywords = filters.keywords?.map((keyword) => keyword.id).join(',');
+
+    const cast = filters.persons
+      ?.filter((person) => person.known_for_department === 'Acting')
+      .map((person) => person.id)
+      .join(personsIn ? ',' : '|');
+    const crew = filters.persons
+      ?.filter((person) => person.known_for_department !== 'Acting')
+      .map((person) => person.id)
+      .join(personsIn ? ',' : '|');
+    const persons = filters.persons
+      ?.map((person) => person.id)
+      .join(personsIn ? ',' : '|');
 
     let url = `${process.env.BASE_URL}/api/tmdb/movies/top-rated?language=en-US&page=${filters.page}`;
     if (genres) url += `&genres=${genres}`;
+    if (providers) url += `&providers=${providers}&region=${region}`;
+    if (keywords) url += `&keywords=${keywords}`;
+    if (cast && crew?.length === 0) url += `&cast=${cast}`;
+    if (crew && cast?.length === 0) url += `&crew=${crew}`;
+    if (cast && cast.length > 0 && crew && crew.length > 0 && persons)
+      url += `&persons=${persons}`;
     if (filters.dateGte) url += `&date-gte=${filters.dateGte}`;
     if (filters.dateLte) url += `&date-lte=${filters.dateLte}`;
     if (filters.voteGte) url += `&vote-gte=${filters.voteGte}`;
@@ -136,18 +162,17 @@ export async function getMovie(movie: string) {
   }
 }
 
-// export function addGenreFilter(filters: Filters, genre: Genre) {
-//   const id = genre.id.toString();
-//   let genres = filters.genres?.split(',').filter((genre) => genre != '') || [];
+export async function getWatchProviders(region: string) {
+  const globalError = 'Failed to fetch movie providers.';
 
-//   console.log(genres);
-
-//   if (!genres.includes(id)) genres.push(id);
-//   else genres = genres.filter((genre) => genre != id);
-
-//   console.log(genres);
-
-//   filters.genres = genres.join(',');
-
-//   return filters;
-// }
+  try {
+    const url = `${process.env.BASE_URL}/api/tmdb/providers/movies?region=${region}&language=en-US`;
+    const option = { next: { revalidate: 3600 } };
+    const providers: Providers = await fetchData(url, globalError, option);
+    return providers;
+  } catch (err) {
+    console.log(err);
+    if (err instanceof ApiError) throw err;
+    throw new Error(globalError);
+  }
+}

@@ -11,8 +11,12 @@ export const GET = async (request: NextRequest) => {
     const rateLte = searchParams.get('rate-lte');
     const dateGte = searchParams.get('date-gte');
     const dateLte = searchParams.get('date-lte');
-
-    console.log('dateGte: ', dateGte);
+    const providers = searchParams.get('providers');
+    const region = searchParams.get('region');
+    const keywords = searchParams.get('keywords');
+    const cast = searchParams.get('cast');
+    const crew = searchParams.get('crew');
+    const persons = searchParams.get('persons');
 
     if (!language)
       return Response.json(
@@ -23,8 +27,27 @@ export const GET = async (request: NextRequest) => {
         { status: 400, statusText: 'Bad request' }
       );
 
+    if ((!providers && region) || (!region && providers)) {
+      return Response.json(
+        {
+          success: false,
+          message:
+            'The request is missing the region or the providers query param.',
+        },
+        { status: 400, statusText: 'Bad request' }
+      );
+    }
+
     let url = `${process.env.TMDB_URL}/discover/movie?include_adult=false&sort_by=vote_average.desc&language=${language}&page=${page}`;
     if (genres) url += `&with_genres=${genres}`;
+    if (providers && region)
+      url += `&watch_region=${region}&with_watch_providers=${providers}`;
+    if (keywords) url += `&with_keywords=${keywords}`;
+    if (persons) url += `&with_people=${persons}`;
+    else {
+      if (cast) url += `&with_cast=${cast}`;
+      if (crew) url += `&with_crew=${crew}`;
+    }
     if (dateGte) url += `&primary_release_date.gte=${dateGte}-01-01`;
     if (dateLte) url += `&primary_release_date.lte=${dateLte}-12-31`;
     if (voteGte) url += `&vote_count.gte=${voteGte}`;
