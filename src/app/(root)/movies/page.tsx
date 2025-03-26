@@ -78,6 +78,7 @@ export default function Movie() {
           providers={providers}
           personsIn={personsIn}
           setPersonsIn={setPersonsIn}
+          voteGte={8000}
         />
         <div className="mb-5">
           <ShowFilters filters={filters} personsIn={personsIn} />

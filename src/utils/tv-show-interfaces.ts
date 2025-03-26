@@ -213,3 +213,10 @@ export interface EpisodeDetails {
     results: VideoItem[];
   };
 }
+
+export interface TvShowsResult {
+  page: number;
+  results: TvShowSummary[];
+  total_pages: number;
+  total_results: number;
+}

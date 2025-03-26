@@ -26,8 +26,9 @@ interface Props {
   setFilters: React.Dispatch<React.SetStateAction<FiltersInterface>>;
   genres: Genre[];
   providers: Providers | undefined;
-  personsIn: boolean;
-  setPersonsIn: React.Dispatch<React.SetStateAction<boolean>>;
+  personsIn?: boolean;
+  setPersonsIn?: React.Dispatch<React.SetStateAction<boolean>>;
+  voteGte: number;
 }
 
 export default function Filters({
@@ -37,6 +38,7 @@ export default function Filters({
   providers,
   personsIn,
   setPersonsIn,
+  voteGte,
 }: Props) {
   return (
     <Dialog>
@@ -63,12 +65,14 @@ export default function Filters({
             setFiltersAction={setFilters}
           />
           <KeywordsFilter filters={filters} setFiltersAction={setFilters} />
-          <PersonsFilter
-            personsIn={personsIn}
-            setPersonsInAction={setPersonsIn}
-            filters={filters}
-            setFiltersAction={setFilters}
-          />
+          {personsIn && setPersonsIn && (
+            <PersonsFilter
+              personsIn={personsIn}
+              setPersonsInAction={setPersonsIn}
+              filters={filters}
+              setFiltersAction={setFilters}
+            />
+          )}
           <Button
             onClick={() =>
               setFilters((prevFilters) => ({
@@ -77,7 +81,7 @@ export default function Filters({
                 genres: undefined,
                 dateGte: undefined,
                 dateLte: undefined,
-                voteGte: 8000,
+                voteGte: voteGte,
                 voteLte: undefined,
                 rateGte: undefined,
                 rateLte: undefined,

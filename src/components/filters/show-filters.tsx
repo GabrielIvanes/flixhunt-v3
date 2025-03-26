@@ -3,7 +3,7 @@ import { Badge } from '../ui/badge';
 
 interface Props {
   filters: Filters;
-  personsIn: boolean;
+  personsIn?: boolean;
 }
 
 export default function ShowFilters({ filters, personsIn }: Props) {

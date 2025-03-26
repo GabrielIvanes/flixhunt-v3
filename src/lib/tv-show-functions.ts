@@ -4,8 +4,10 @@ import {
   EpisodeDetails,
   SeasonDetails,
   TvShowDetails,
+  TvShowsResult,
   TvShowSummary,
 } from '@/utils/tv-show-interfaces';
+import { Filters, Genre, Providers } from '@/utils/global-interfaces';
 
 export async function getTvShow(tvShow: string) {
   const globalError = 'Failed to fetch tv-show details.';
@@ -115,6 +117,70 @@ export async function getEpisode(
       option
     );
     return episodeDetails;
+  } catch (err) {
+    console.log(err);
+    if (err instanceof ApiError) throw err;
+    throw new Error(globalError);
+  }
+}
+
+export async function getTopRatedTvShows(filters: Filters, region: string) {
+  const globalError = 'Failed to fetch top-rated movies.';
+
+  try {
+    const genres = filters.genres?.map((genre) => genre.id).join(',');
+    const providers = filters.providers
+      ?.map((provider) => provider.provider_id)
+      .join('|');
+    const keywords = filters.keywords?.map((keyword) => keyword.id).join(',');
+
+    let url = `${process.env.BASE_URL}/api/tmdb/tv-shows/top-rated?language=en-US&page=${filters.page}`;
+    if (genres) url += `&genres=${genres}`;
+    if (providers) url += `&providers=${providers}&region=${region}`;
+    if (keywords) url += `&keywords=${keywords}`;
+    if (filters.dateGte) url += `&date-gte=${filters.dateGte}`;
+    if (filters.dateLte) url += `&date-lte=${filters.dateLte}`;
+    if (filters.voteGte) url += `&vote-gte=${filters.voteGte}`;
+    if (filters.rateGte) url += `&rate-gte=${filters.rateGte}`;
+    if (filters.rateLte) url += `&rate-lte=${filters.rateLte}`;
+
+    const option = { next: { revalidate: 3600 } };
+    const topRatedMovies: TvShowsResult = await fetchData(
+      url,
+      globalError,
+      option
+    );
+    return topRatedMovies;
+  } catch (err) {
+    console.log(err);
+    if (err instanceof ApiError) throw err;
+    throw new Error(globalError);
+  }
+}
+
+export async function getTvShowWatchProviders(region: string) {
+  const globalError = 'Failed to fetch tv-show providers.';
+
+  try {
+    const url = `${process.env.BASE_URL}/api/tmdb/providers/tv-shows?region=${region}&language=en-US`;
+    const option = { next: { revalidate: 3600 } };
+    const providers: Providers = await fetchData(url, globalError, option);
+    return providers;
+  } catch (err) {
+    console.log(err);
+    if (err instanceof ApiError) throw err;
+    throw new Error(globalError);
+  }
+}
+
+export async function getTvShowGenres() {
+  const globalError = 'Failed to fetch tv-show genres.';
+
+  try {
+    const url = `${process.env.BASE_URL}/api/tmdb/genres/tv-shows?language=en-US`;
+    const option = { next: { revalidate: 3600 * 24 } };
+    const genres: Genre[] = (await fetchData(url, globalError, option)).genres;
+    return genres;
   } catch (err) {
     console.log(err);
     if (err instanceof ApiError) throw err;
